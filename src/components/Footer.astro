@@ -1,0 +1,61 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-navy-dark text-white pt-16 pb-8 border-t border-navy-light mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+      
+      {/* Brand & Mission */}
+      <div class="col-span-1 md:col-span-2">
+        <div class="flex flex-col items-start leading-none mb-6">
+          <span class="font-serif text-3xl tracking-wide">Flores</span>
+          <span class="font-sans text-[0.8rem] tracking-[0.2em] font-light uppercase opacity-80">Dental Studio</span>
+        </div>
+        <p class="text-gray-300 font-light max-w-md mb-6 leading-relaxed">
+          Odontología de excelencia en Ecatepec. Nuestro compromiso es la ética, la honestidad diagnóstica y el trato cálido y humano.
+        </p>
+      </div>
+
+      {/* Quick Links */}
+      <div>
+        <h3 class="text-lg font-serif mb-6 border-b border-navy-light pb-2 inline-block">Navegación</h3>
+        <ul class="space-y-3 font-light text-gray-300">
+          <li><a href="/" class="hover:text-white transition-colors">Inicio</a></li>
+          <li><a href="#pilares" class="hover:text-white transition-colors">Ética y Filosofía</a></li>
+          <li><a href="#servicios" class="hover:text-white transition-colors">Nuestros Servicios</a></li>
+          <li><a href="/blog" class="hover:text-white transition-colors">Blog y Noticias</a></li>
+        </ul>
+      </div>
+
+      {/* Contact Info */}
+      <div>
+        <h3 class="text-lg font-serif mb-6 border-b border-navy-light pb-2 inline-block">Contacto</h3>
+        <address class="not-italic space-y-3 font-light text-gray-300">
+          <p class="flex items-start">
+            <svg class="h-5 w-5 mr-3 mt-0.5 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Las Américas, Ecatepec<br/>Estado de México
+          </p>
+          <p class="flex items-center mt-4">
+            <svg class="h-5 w-5 mr-3 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Solo con Cita Previa
+          </p>
+        </address>
+      </div>
+      
+    </div>
+    
+    <div class="border-t border-navy-light pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 font-light">
+      <p>&copy; {currentYear} Flores Dental Studio. Todos los derechos reservados.</p>
+      <div class="mt-4 md:mt-0 space-x-4">
+        <a href="/privacidad" class="hover:text-white transition-colors">Aviso de Privacidad</a>
+        <a href="/terminos" class="hover:text-white transition-colors">Términos de Servicio</a>
+      </div>
+    </div>
+  </div>
+</footer>

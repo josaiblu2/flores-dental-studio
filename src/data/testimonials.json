@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "fecha": "2026-03-24T15:30:00Z",
+    "nombre_paciente": "Mariana López",
+    "comentario": "El diagnóstico fue increíblemente honesto. Me explicaron paso a paso por qué no necesitaba un tratamiento invasivo.",
+    "is_published": false
+  },
+  {
+    "id": "2",
+    "fecha": "2026-03-25T09:15:00Z",
+    "nombre_paciente": "Salvador Ibarra",
+    "comentario": "Instalaciones impecables y una calidez que elimina la ansiedad del dentista. Totalmente recomendados.",
+    "is_published": true
+  }
+]

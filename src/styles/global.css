@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-navy: #002147;
+  --color-navy-dark: #001530;
+  --color-navy-light: #003366;
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --color-white: #ffffff;
+}
+
+@layer base {
+  body {
+    @apply font-sans text-navy bg-white;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}

@@ -1,0 +1,74 @@
+---
+export interface Props {}
+---
+
+<header class="bg-navy text-white sticky top-0 z-50 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      
+      {/* Logo: El Sello Concept */}
+      <div class="flex-shrink-0 flex items-center">
+        <a href="/" class="flex flex-col items-start leading-none group">
+          <span class="font-serif text-2xl tracking-wide group-hover:text-blue-100 transition-colors">Flores</span>
+          <span class="font-sans text-[0.65rem] tracking-[0.2em] font-light uppercase opacity-90">Dental Studio</span>
+        </a>
+      </div>
+
+      {/* Navigation */}
+      <nav class="hidden md:flex space-x-8">
+        <a href="/" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Inicio</a>
+        <a href="#pilares" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Clínica</a>
+        <a href="#servicios" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Especialidades</a>
+        <a href="#faq" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Transparencia</a>
+        <a href="/blog" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Blog</a>
+      </nav>
+
+      {/* Call to Action & Contact */}
+      <div class="hidden md:flex items-center">
+        <a href="#contacto" class="bg-white text-navy hover:bg-gray-100 px-5 py-2 rounded shadow text-sm font-semibold transition-colors duration-300">
+          Agendar Cita
+        </a>
+      </div>
+
+      {/* Mobile menu button */}
+      <div class="flex md:hidden items-center">
+        <button type="button" id="mobile-menu-btn" class="text-white hover:text-blue-200 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+          <span class="sr-only">Abrir menú principal</span>
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      
+    </div>
+  </div>
+
+  {/* Mobile Menu Dropdown */}
+  <div id="mobile-menu" class="hidden md:hidden bg-navy-dark border-t border-navy-light">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 text-center">
+      <a href="/" class="block hover:text-blue-200 px-3 py-2 rounded-md font-medium">Inicio</a>
+      <a href="/#pilares" class="block hover:text-blue-200 px-3 py-2 rounded-md font-medium">Clínica</a>
+      <a href="/#servicios" class="block hover:text-blue-200 px-3 py-2 rounded-md font-medium">Especialidades</a>
+      <a href="/blog" class="block hover:text-blue-200 px-3 py-2 rounded-md font-medium">Blog</a>
+    </div>
+  </div>
+</header>
+
+{/* Mobile Floating CTA */}
+<div class="md:hidden fixed bottom-6 right-6 z-50">
+  <a href="#contacto" class="bg-blue-600 text-white shadow-xl hover:bg-blue-500 rounded-full h-14 px-6 flex items-center justify-center font-semibold tracking-wide transition-colors">
+    Agendar Cita
+  </a>
+</div>
+
+<script is:inline>
+  document.addEventListener('astro:page-load', () => {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    if (btn && menu) {
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+      });
+    }
+  });
+</script>

@@ -1,0 +1,61 @@
+---
+// FAQ.astro
+const faqs = [
+  {
+    question: "¿En qué consiste el diagnóstico conservador?",
+    answer: "Nuestro enfoque se basa en salvar tu estructura dental natural siempre que sea posible. Priorizamos la prevención y aplicamos tratamientos mínimamente invasivos para proteger tus dientes originales."
+  },
+  {
+    question: "¿Cuáles son sus protocolos de bioseguridad?",
+    answer: "Cumplimos con las regulaciones internacionales más estrictas. Utilizamos esterilización de grado médico para que cada instrumental que toque tu boca sea 100% seguro."
+  },
+  {
+    question: "¿Cómo garantizan el manejo del dolor?",
+    answer: "Contamos con protocolos avanzados para urgencias y atención integral que neutralizan las molestias. Nos aseguramos de que tu visita sea lo más relajante y libre de ansiedad posible."
+  },
+  {
+    question: "¿Tienen costos ocultos en sus presupuestos?",
+    answer: "En absoluto. La honestidad y transparencia son nuestros pilares. Recibirás presupuestos claros antes de iniciar cualquier procedimiento, sin sorpresas."
+  },
+  {
+    question: "¿Qué calidad de materiales utilizan?",
+    answer: "Trabajamos exclusivamente con materiales de altísima gama y respaldo científico garantizado, tales como resinas y cementos de las marcas líderes mundiales 3M e Ivoclar."
+  }
+];
+---
+
+<section id="faq" class="py-24 bg-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <span class="text-navy-light tracking-widest uppercase text-xs font-semibold">Transparencia</span>
+      <h2 class="font-serif text-3xl md:text-4xl text-navy mt-2">Preguntas Frecuentes</h2>
+      <div class="w-16 h-1 bg-navy-light mx-auto mt-6 rounded-full"></div>
+      <p class="mt-6 text-gray-500 font-light max-w-2xl mx-auto">
+        Resolvemos las inquietudes más comunes sobre nuestros procesos y filosofía de trabajo.
+      </p>
+    </div>
+    
+    <div class="space-y-6">
+      {faqs.map((faq, index) => (
+        <details class="group bg-gray-50 rounded-sm overflow-hidden" name="faq">
+          <summary class="flex items-center justify-between cursor-pointer p-6 font-medium text-navy bg-white border border-gray-100 shadow-sm list-none">
+            <span>{faq.question}</span>
+            <span class="transition group-open:rotate-180">
+              <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
+          </summary>
+          <div class="p-6 font-light text-gray-600 leading-relaxed bg-gray-50 border-x border-b border-gray-100">
+            {faq.answer}
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Remove default arrows from summary in Safari */
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

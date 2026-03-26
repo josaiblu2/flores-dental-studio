@@ -1,0 +1,54 @@
+---
+// src/pages/blog/index.astro
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+// Fetch all blog posts
+const posts = await getCollection('blog');
+// Sort by date descending
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout title="Blog | Flores Dental Studio" description="Conoce nuestras guías, derriba mitos y descubre innovaciones en odontología.">
+  <Header />
+
+  <main class="py-24 bg-gray-50 flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h1 class="font-serif text-4xl md:text-5xl text-navy">Nuestro Blog</h1>
+        <div class="w-16 h-1 bg-blue-300 mx-auto mt-4 rounded-full"></div>
+        <p class="mt-4 text-gray-500 max-w-2xl mx-auto font-light">
+          Información transparente para el cuidado de tu sonrisa. (Guía, Mitos, Innovación).
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.map(post => (
+          <article class="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+            <div class="p-6">
+              <span class="text-xs font-semibold tracking-wide text-blue-600 uppercase bg-blue-50 px-2 py-1 rounded">
+                {post.data.category}
+              </span>
+              <h2 class="mt-4 text-xl font-serif text-navy">
+                <a href={`/blog/${post.id}`} class="hover:text-blue-500 transition-colors">
+                  {post.data.title}
+                </a>
+              </h2>
+              <p class="mt-3 text-gray-500 font-light text-sm line-clamp-3">
+                {post.data.description}
+              </p>
+              <div class="mt-6 flex items-center justify-between text-xs text-gray-400 font-light">
+                <span>{post.data.date.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <span>{post.data.author}</span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

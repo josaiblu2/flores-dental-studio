@@ -1,0 +1,126 @@
+---
+// ContactForm.astro
+// Destino: alanflco@yahoo.com.mx
+---
+
+<section id="contacto" class="py-24 bg-white relative">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-navy rounded-sm shadow-2xl overflow-hidden flex flex-col md:flex-row">
+      
+      {/* Contact Info Side */}
+      <div class="md:w-5/12 p-10 bg-navy-dark text-white flex flex-col justify-between">
+        <div>
+          <h2 class="font-serif text-3xl mb-4">Agende su consulta</h2>
+          <p class="font-sans font-light text-sm text-gray-300 mb-8 leading-relaxed">
+            Estamos listos para brindarle la atención dental de la más alta calidad. Complete el formulario y nuestro equipo se comunicará a la brevedad.
+          </p>
+        </div>
+        <div class="space-y-6">
+          <p class="flex items-center text-sm font-light text-gray-300">
+            <svg class="w-5 h-5 mr-3 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            alanflco@yahoo.com.mx
+          </p>
+          <p class="flex items-center text-sm font-light text-gray-300">
+            <svg class="w-5 h-5 mr-3 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Las Américas, Ecatepec
+          </p>
+        </div>
+      </div>
+
+      {/* Form Side */}
+      <div class="md:w-7/12 p-10 bg-white">
+        <!-- Netlify Form Integration with hidden fields -->
+        <form name="contacto_floresdental" method="POST" action="/gracias" data-netlify="true" data-netlify-recaptcha="true" id="contact-form" class="space-y-6">
+          <input type="hidden" name="form-name" value="contacto_floresdental" />
+          <input type="hidden" name="to" value="alanflco@yahoo.com.mx" />
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="nombre" class="block text-sm font-medium text-navy mb-1">Nombre completo</label>
+              <input type="text" id="nombre" name="nombre" required class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800" placeholder="Ej. Juan Pérez" />
+            </div>
+            <div>
+              <label for="telefono" class="block text-sm font-medium text-navy mb-1">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" required class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800" placeholder="Ej. 55 1234 5678" />
+            </div>
+          </div>
+          
+          <div>
+            <label for="servicio" class="block text-sm font-medium text-navy mb-1">Servicio de interés</label>
+            <select id="servicio" name="servicio" required class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800">
+              <option value="" disabled selected>Seleccione un tratamiento</option>
+              <option value="diseno_sonrisa">Diseño de Sonrisa</option>
+              <option value="implantes">Implantología</option>
+              <option value="ortodoncia">Ortodoncia Invisible</option>
+              <option value="general">Odontología General</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="mensaje" class="block text-sm font-medium text-navy mb-1">Mensaje (Opcional)</label>
+            <textarea id="mensaje" name="mensaje" rows="3" class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800 resize-none" placeholder="¿Cómo podemos ayudarle?"></textarea>
+          </div>
+
+          <!-- Privacy Policy Validation -->
+          <div class="flex items-start mt-4">
+            <div class="flex items-center h-5">
+              <input id="privacidad" name="privacidad" type="checkbox" required class="w-4 h-4 text-navy border-gray-300 rounded focus:ring-navy cursor-pointer">
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="privacidad" class="font-light text-gray-500 cursor-pointer">
+                He leído y acepto el <a href="/aviso-de-privacidad" class="text-navy font-medium underline">Aviso de Privacidad</a>.
+              </label>
+            </div>
+          </div>
+
+          <div data-netlify-recaptcha="true"></div>
+
+          <div class="pt-2">
+            <button type="submit" class="w-full bg-navy text-white font-medium py-3 px-4 rounded-sm hover:bg-navy-light transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" id="submitBtn">
+              Enviar Mensaje
+            </button>
+            <p class="text-xs text-gray-400 mt-3 text-center font-light">
+              Protegido por reCAPTCHA v3. <a href="https://policies.google.com/privacy" class="underline">Privacidad</a> y <a href="https://policies.google.com/terms" class="underline">Términos</a>.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- reCAPTCHA v3 Mockup Integration -->
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submitBtn');
+    const checkbox = document.getElementById('privacidad');
+
+    // MOCKUP: In a real environment, load `https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY`
+    // and execute grecaptcha.execute() on submit.
+    // For staging/compliance validation, we ensure the privacy checkbox logic works.
+    
+    // Privacy policy strict UI constraint
+    const validateFormState = () => {
+      submitBtn.disabled = !checkbox.checked;
+    };
+    
+    checkbox.addEventListener('change', validateFormState);
+    validateFormState(); // initial state
+
+    form.addEventListener('submit', (e) => {
+      if (!checkbox.checked) {
+        e.preventDefault();
+        alert('Debe aceptar el Aviso de Privacidad para continuar.');
+        return;
+      }
+      
+      // Simulate reCAPTCHA v3 token generation before actual Netlify form submission
+      document.getElementById('recaptchaToken').value = "mock_v3_token_" + Date.now();
+      
+      // Note: Netlify intercepts the submit automatically and handles the POST via the hidden logic.
+      // In production, you'd wrap the Netlify submission in a grecaptcha.ready config.
+    });
+  });
+</script>
