@@ -8,7 +8,7 @@ const blogCollection = defineCollection({
     description: z.string(),
     date: z.date(),
     author: z.string().default('Flores Dental Studio'),
-    category: z.enum(['Guía', 'Mitos', 'Innovación']),
+    category: z.enum(['Guía', 'Mitos', 'Innovación', 'Educación', 'Estética', 'Comunidad']),
     image: z.string().optional(),
     tags: z.array(z.string()).optional(),
   }),

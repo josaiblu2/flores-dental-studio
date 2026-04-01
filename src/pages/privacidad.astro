@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Aviso de Privacidad | Flores Dental Studio" description="Conoce cómo protegemos tus datos y garantizamos tu confidencialidad clínica.">
+  <Header />
+
+  <main class="py-24 bg-gray-50 flex-grow">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="bg-white p-12 rounded-sm shadow-sm border border-gray-100">
+        <div class="text-center mb-12">
+          <h1 class="font-serif text-3xl md:text-4xl text-navy">Aviso de Privacidad Simplificado</h1>
+          <p class="text-gray-400 font-light mt-3 text-sm tracking-wide">v1.22 | TRATAMIENTO ÉTICO DE DATOS</p>
+          <div class="w-16 h-1 bg-navy-light mx-auto mt-6 rounded-full"></div>
+        </div>
+
+        <div class="prose prose-lg max-w-none text-gray-600 font-light leading-relaxed">
+          <p><strong>Responsable:</strong> Dra. Flores (Flores Dental Studio).</p>
+          
+          <p class="mt-8 font-medium text-navy">Finalidad</p>
+          <p>Los datos personales que solicitamos en nuestro formulario (Nombre, Teléfono, Correo) serán utilizados única y exclusivamente para:</p>
+          <ul class="list-disc pl-5 space-y-2 mt-4">
+            <li>Gestionar y confirmar su cita dental.</li>
+            <li>Brindar asesoría personalizada sobre nuestros servicios.</li>
+            <li>Enviar recordatorios de seguimiento clínico.</li>
+          </ul>
+
+          <p class="mt-8 font-medium text-navy">Protección de la Información</p>
+          <p>Le informamos que sus datos no serán compartidos, vendidos ni transferidos a terceros ajenos a la clínica. Contamos con medidas de seguridad técnicas para evitar el acceso no autorizado a su información sensible y garantizar total confidencialidad.</p>
+
+          <p class="mt-8 font-medium text-navy">Derechos ARCO</p>
+          <p>Usted podrá ejercer sus derechos de Acceso, Rectificación, Cancelación u Oposición enviando un correo directamente a la administración: <a href="mailto:alanflco@yahoo.com.mx" class="text-blue-600 hover:text-navy underline">alanflco@yahoo.com.mx</a>.</p>
+
+          <hr class="my-10 border-gray-100" />
+          
+          <p class="text-sm italic text-gray-400">Última actualización: Marzo 2026.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

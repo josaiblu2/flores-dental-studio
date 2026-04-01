@@ -46,14 +46,20 @@
           </div>
           
           <div>
+            <label for="email" class="block text-sm font-medium text-navy mb-1">Correo electrónico</label>
+            <input type="email" id="email" name="email" required autocomplete="email" class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800" placeholder="Ej. juan.perez@email.com" />
+          </div>
+          
+          <div>
             <label for="servicio" class="block text-sm font-medium text-navy mb-1">Servicio de interés</label>
-            <select id="servicio" name="servicio" required class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800">
+            <select id="servicio" name="servicio_interes" required class="w-full border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-navy transition-colors text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap">
               <option value="" disabled selected>Seleccione un tratamiento</option>
-              <option value="diseno_sonrisa">Diseño de Sonrisa</option>
-              <option value="implantes">Implantología</option>
-              <option value="ortodoncia">Ortodoncia Invisible</option>
-              <option value="general">Odontología General</option>
-              <option value="otro">Otro</option>
+              <option value="Limpieza y Prevención">Limpieza y Prevención</option>
+              <option value="Consulta de Valoración / Diagnóstico">Consulta de Valoración / Diagnóstico</option>
+              <option value="Resinas y Restauraciones">Resinas y Restauraciones</option>
+              <option value="Blanqueamiento Dental">Blanqueamiento Dental</option>
+              <option value="Urgencia Dental / Dolor">Urgencia Dental / Dolor</option>
+              <option value="Otros">Otros</option>
             </select>
           </div>
 
@@ -69,7 +75,7 @@
             </div>
             <div class="ml-3 text-sm">
               <label for="privacidad" class="font-light text-gray-500 cursor-pointer">
-                He leído y acepto el <a href="/aviso-de-privacidad" class="text-navy font-medium underline">Aviso de Privacidad</a>.
+                He leído y acepto el <a href="/privacidad" target="_blank" class="text-navy font-medium underline hover:text-blue-600 transition-colors">Aviso de Privacidad</a>.
               </label>
             </div>
           </div>
