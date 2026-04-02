@@ -96,36 +96,3 @@
 </section>
 
 <!-- reCAPTCHA v3 Mockup Integration -->
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('contact-form');
-    const submitBtn = document.getElementById('submitBtn');
-    const checkbox = document.getElementById('privacidad');
-
-    // MOCKUP: In a real environment, load `https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY`
-    // and execute grecaptcha.execute() on submit.
-    // For staging/compliance validation, we ensure the privacy checkbox logic works.
-    
-    // Privacy policy strict UI constraint
-    const validateFormState = () => {
-      submitBtn.disabled = !checkbox.checked;
-    };
-    
-    checkbox.addEventListener('change', validateFormState);
-    validateFormState(); // initial state
-
-    form.addEventListener('submit', (e) => {
-      if (!checkbox.checked) {
-        e.preventDefault();
-        alert('Debe aceptar el Aviso de Privacidad para continuar.');
-        return;
-      }
-      
-      // Simulate reCAPTCHA v3 token generation before actual Netlify form submission
-      document.getElementById('recaptchaToken').value = "mock_v3_token_" + Date.now();
-      
-      // Note: Netlify intercepts the submit automatically and handles the POST via the hidden logic.
-      // In production, you'd wrap the Netlify submission in a grecaptcha.ready config.
-    });
-  });
-</script>
