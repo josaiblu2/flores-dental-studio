@@ -3,8 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 
 export default defineConfig({
+  output: 'static', 
   integrations: [react()],
-  output: 'static', // Forzamos el modo estático
   vite: {
     plugins: [tailwindcss()]
   }
