@@ -21,7 +21,8 @@
     "astro": "^6.0.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "@astrojs/netlify": "latest"
   },
   "devDependencies": {
     "@types/node": "^25.5.0"
