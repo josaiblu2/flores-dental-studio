@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="¡Gracias por tu Testimonio! | Flores Dental Studio" description="Hemos recibido tu testimonio. Lo revisaremos y publicaremos pronto.">
+  <Header />
+
+  <main class="py-24 bg-navy-dark flex-grow flex items-center justify-center min-h-[70vh]">
+    <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
+      
+      <div class="bg-navy p-12 rounded-lg shadow-2xl border border-navy-light relative overflow-hidden">
+        
+        {/* Decorative glow */}
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent rounded-full"></div>
+
+        {/* Success icon */}
+        <div class="mb-8 flex justify-center">
+          <div class="h-24 w-24 rounded-full bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center">
+            <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+        </div>
+        
+        <h1 class="font-serif text-3xl text-white mb-4">¡Gracias por tu testimonio!</h1>
+        
+        <p class="text-gray-300 font-light mb-2 leading-relaxed">
+          Tu reseña ha sido recibida exitosamente.
+        </p>
+        <p class="text-gray-400 font-light text-sm mb-10 leading-relaxed">
+          La Dra. Flores la revisará personalmente y la publicará en breve. Tu experiencia ayuda a otros pacientes a encontrar atención odontológica ética.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            href="/#testimonios"
+            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition-colors shadow text-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Ver testimonios
+          </a>
+          <a
+            href="/"
+            class="inline-flex items-center justify-center px-6 py-3 bg-navy-dark border border-navy-light hover:border-blue-400 text-gray-300 hover:text-white rounded font-medium transition-colors text-sm"
+          >
+            Ir al inicio
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

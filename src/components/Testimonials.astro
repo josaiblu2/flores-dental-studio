@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const dataPath = path.join(process.cwd(), 'src/data/testimonials.json');
+const dataPath = path.join(process.cwd(), 'data/testimonials.json');
 let published = [];
 
 try {
@@ -54,34 +54,116 @@ const truncateName = (fullName: string) => {
       ))}
     </div>
 
-    {/* Submission Form for new testimonials (Injection Test via QA) */}
-    <div class="max-w-2xl mx-auto bg-navy rounded p-8 border border-navy-light text-center">
+    {/* Submission Form + In-place success */}
+    <div id="testimonial-card" class="max-w-2xl mx-auto bg-navy rounded p-8 border border-navy-light text-center">
       <h3 class="font-serif text-2xl mb-2">¿Nos visitaste recientemente?</h3>
       <p class="text-gray-300 font-light text-sm mb-6">Comparte tu experiencia. Tu reseña ayuda a otros pacientes a encontrar atención odontológica ética.</p>
       
-      <form action="/api/testimonials" method="POST" class="space-y-4 text-left">
+      <div class="space-y-4 text-left">
         <div>
           <label for="nombre_paciente" class="block text-xs text-blue-200 mb-1">Nombre Completo</label>
-          <input type="text" id="nombre_paciente" name="nombre_paciente" required class="w-full bg-navy-dark border border-navy-light rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400 text-sm" placeholder="Ej. Juan Pérez" />
+          <input type="text" id="nombre_paciente"
+            class="w-full bg-navy-dark border border-navy-light rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400 text-sm"
+            placeholder="Ej. Juan Pérez" />
         </div>
         <div>
           <label for="comentario" class="block text-xs text-blue-200 mb-1">Tu Experiencia</label>
-          <textarea id="comentario" name="comentario" rows="3" required class="w-full bg-navy-dark border border-navy-light rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400 text-sm resize-none" placeholder="Cuéntanos cómo te sentimos..."></textarea>
+          <textarea id="comentario" rows="3"
+            class="w-full bg-navy-dark border border-navy-light rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400 text-sm resize-none"
+            placeholder="Cuéntanos cómo te sentimos..."></textarea>
         </div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-medium transition-colors text-sm shadow">
+        <button
+          type="button"
+          id="testimonial-submit-btn"
+          onclick="window.__enviarTestimonio()"
+          class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-medium transition-colors text-sm shadow">
           Enviar Testimonio
         </button>
-      </form>
+        <p id="testimonial-error" class="hidden text-red-400 text-xs mt-2"></p>
+      </div>
     </div>
 
     <script is:inline>
-      // Quick check for query param to show success alert
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('testimonial') === 'submitted') {
-        alert("¡Gracias! Tu testimonio ha sido enviado y está pendiente de moderación.");
-        // clean url
-        window.history.replaceState({}, document.title, window.location.pathname);
+    // On page load: check if we JUST submitted a testimonial
+    (function() {
+      var saved = sessionStorage.getItem('testimonial_sent');
+      if (saved) {
+        var nombre = saved;
+        // Don't remove immediately — Vite may reload the page multiple times.
+        // Keep showing the success message for 10s of page stability.
+        setTimeout(function() { sessionStorage.removeItem('testimonial_sent'); }, 10000);
+        var card = document.getElementById('testimonial-card');
+        if (card) {
+          card.innerHTML =
+            '<div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:2.5rem 1rem;text-align:center">' +
+              '<div style="width:5rem;height:5rem;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid rgba(74,222,128,0.5);display:flex;align-items:center;justify-content:center">' +
+                '<svg width="40" height="40" fill="none" stroke="#4ade80" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
+              '</div>' +
+              '<div>' +
+                '<p style="font-family:serif;font-size:1.4rem;color:#fff;margin:0 0 .5rem">\u00a1Gracias, ' + nombre + '!</p>' +
+                '<p style="font-size:.9rem;font-weight:600;color:#86efac;margin:0 0 .75rem">Tu testimonio fue enviado exitosamente.</p>' +
+                '<p style="font-size:.8rem;color:#9ca3af;line-height:1.6;margin:0">La Dra. Flores lo revisar\u00e1 y lo publicar\u00e1 pronto.<br>Tu experiencia ayuda a otros pacientes.</p>' +
+              '</div>' +
+            '</div>';
+        }
       }
+    })();
+
+    window.__enviarTestimonio = function() {
+      var nombre     = (document.getElementById('nombre_paciente').value || '').trim();
+      var comentario = (document.getElementById('comentario').value || '').trim();
+      var btn        = document.getElementById('testimonial-submit-btn');
+      var errEl      = document.getElementById('testimonial-error');
+
+      if (!nombre)     { errEl.textContent = 'Por favor ingresa tu nombre.';     errEl.classList.remove('hidden'); return; }
+      if (!comentario) { errEl.textContent = 'Por favor escribe tu experiencia.'; errEl.classList.remove('hidden'); return; }
+
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      // Save BEFORE fetch — Vite HMR will reload the page before .then() runs,
+      // cancelling the fetch callback. The reload will find this flag and show success.
+      sessionStorage.setItem('testimonial_sent', nombre.split(' ')[0]);
+
+      fetch('/api/testimonials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre_paciente: nombre, comentario: comentario })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data && data.success) {
+          var card = document.getElementById('testimonial-card');
+          if (card) {
+            card.innerHTML =
+              '<div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:2.5rem 1rem;text-align:center">' +
+                '<div style="width:5rem;height:5rem;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid rgba(74,222,128,0.5);display:flex;align-items:center;justify-content:center">' +
+                  '<svg width="40" height="40" fill="none" stroke="#4ade80" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
+                '</div>' +
+                '<div>' +
+                  '<p style="font-family:serif;font-size:1.4rem;color:#fff;margin:0 0 .5rem">\u00a1Gracias, ' + nombre.split(' ')[0] + '!</p>' +
+                  '<p style="font-size:.9rem;font-weight:600;color:#86efac;margin:0 0 .75rem">Tu testimonio fue enviado exitosamente.</p>' +
+                  '<p style="font-size:.8rem;color:#9ca3af;line-height:1.6;margin:0">La Dra. Flores lo revisar\u00e1 y lo publicar\u00e1 pronto.<br>Tu experiencia ayuda a otros pacientes.</p>' +
+                '</div>' +
+              '</div>';
+          }
+        } else {
+          sessionStorage.removeItem('testimonial_sent');
+          btn.disabled = false;
+          btn.textContent = 'Enviar Testimonio';
+          errEl.textContent = 'Error del servidor. Intenta nuevamente.';
+          errEl.classList.remove('hidden');
+        }
+      })
+      .catch(function() {
+        sessionStorage.removeItem('testimonial_sent');
+        btn.disabled = false;
+        btn.textContent = 'Enviar Testimonio';
+        errEl.textContent = 'No se pudo conectar. Intenta nuevamente.';
+        errEl.classList.remove('hidden');
+      });
+    };
     </script>
   </div>
 </section>

@@ -1,0 +1,140 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+// Server-side only
+export const prerender = false;
+
+const dataPath = path.join(process.cwd(), 'data/testimonials.json');
+let pending = [];
+let approved = [];
+
+try {
+  const rawData = await fs.readFile(dataPath, 'utf-8');
+  const all = JSON.parse(rawData);
+  pending = all.filter((t: any) => !t.is_published);
+  approved = all.filter((t: any) => t.is_published);
+} catch (e) {
+  console.error(e);
+}
+---
+
+<Layout title="Moderación de Testimonios | Flores Dental Studio" description="Panel de control para la gestión de reseñas de pacientes.">
+  <div class="min-h-screen bg-[#08152b] text-white pt-24 pb-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      {/* Header */}
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-12 border-b border-blue-900/50 pb-8">
+        <div>
+          <h1 class="font-serif text-4xl mb-2">Panel de Moderación</h1>
+          <p class="text-blue-300 font-light">Gestione las experiencias compartidas por sus pacientes.</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-4">
+          <div class="bg-navy-dark px-4 py-2 rounded border border-blue-800/30 text-center">
+            <span class="block text-2xl font-bold text-blue-400">{pending.length}</span>
+            <span class="text-[10px] uppercase tracking-widest text-gray-400">Pendientes</span>
+          </div>
+          <div class="bg-navy-dark px-4 py-2 rounded border border-blue-800/30 text-center">
+            <span class="block text-2xl font-bold text-gray-300">{approved.length}</span>
+            <span class="text-[10px] uppercase tracking-widest text-gray-400">Publicados</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Pending Section */}
+      <section class="mb-16">
+        <h2 class="text-xl font-sans font-semibold mb-6 flex items-center">
+          <span class="w-2 h-2 bg-yellow-400 rounded-full mr-3 animate-pulse"></span>
+          Nuevos testimonios por aprobar
+        </h2>
+
+        {pending.length === 0 ? (
+          <div class="bg-navy-dark/50 border border-dashed border-blue-900 rounded-lg p-12 text-center">
+            <p class="text-gray-500 italic">No hay comentarios pendientes en este momento.</p>
+          </div>
+        ) : (
+          <div class="grid gap-6">
+            {pending.map((t) => (
+              <div class="bg-navy-dark border border-blue-900/50 rounded-lg p-6 hover:border-blue-700 transition-colors shadow-xl group" id={`card-${t.id}`}>
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 class="text-lg font-medium text-blue-100">{t.nombre_paciente}</h3>
+                    <span class="text-xs text-gray-500">{new Date(t.fecha).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  </div>
+                  <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onclick={`handleAction('${t.id}', 'approve')`}
+                      class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium transition-all shadow-lg active:scale-95"
+                    >
+                      Aprobar
+                    </button>
+                    <button 
+                      onclick={`handleAction('${t.id}', 'archive')`}
+                      class="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-900/50 px-4 py-1.5 rounded text-sm font-medium transition-all active:scale-95"
+                    >
+                      Archivar
+                    </button>
+                  </div>
+                </div>
+                <p class="text-gray-300 font-light leading-relaxed italic border-l-2 border-blue-800 pl-4 py-1">
+                  "{t.comentario}"
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Information Box */}
+      <div class="bg-blue-900/20 border border-blue-800/50 rounded p-6 flex items-start gap-4">
+        <svg class="w-6 h-6 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <p class="text-sm text-blue-200 font-light leading-relaxed">
+          <strong>IMPORTANTE:</strong> Una vez aprobado, el testimonio se mostrará automáticamente en la página principal con el apellido abreviado para proteger la privacidad del paciente. Los cambios pueden tardar unos segundos en reflejarse.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script is:inline>
+    async function handleAction(id, action) {
+      if (!confirm(`¿Estás seguro de que deseas ${action === 'approve' ? 'aprobación' : 'archivar'} este testimonio?`)) return;
+
+      const btn = event.target;
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Procesando...';
+
+      try {
+        const res = await fetch('/api/testimonials', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, action })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          // Visual feedback
+          const card = document.getElementById(`card-${id}`);
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(-10px)';
+          card.style.transition = 'all 0.5s ease';
+          
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        } else {
+          alert('Hubo un error al procesar la acción.');
+          btn.disabled = false;
+          btn.innerText = originalText;
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Error de conexión con el servidor.');
+        btn.disabled = false;
+        btn.innerText = originalText;
+      }
+    }
+  </script>
+</Layout>
