@@ -1,20 +1,19 @@
 ---
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { getStore } from '@netlify/blobs';
 
-const dataPath = path.join(process.cwd(), 'data/testimonials.json');
+const store = getStore({ name: 'testimonials' });
 let published = [];
 
 try {
-  const rawData = await fs.readFile(dataPath, 'utf-8');
-  const allTestimonials = JSON.parse(rawData);
-  // Filter only approved ones
-  published = allTestimonials.filter((t: any) => t.is_published === true);
+  const allTestimonials = await store.get('all', { type: 'json' }) as any[];
+  if (allTestimonials) {
+    published = allTestimonials.filter((t: any) => t.is_published === true);
+  }
 } catch (error) {
-  console.error("Error reading testimonials:", error);
+  console.error("Error reading testimonials from blobs:", error);
 }
 
-// Helper to truncate last name: "Salvador Ibarra" -> "Salvador I."
+// Helper to truncate last name
 const truncateName = (fullName: string) => {
   const parts = fullName.trim().split(' ');
   if (parts.length > 1) {
@@ -83,86 +82,63 @@ const truncateName = (fullName: string) => {
       </div>
     </div>
 
+    {/* Hidden form for Netlify Notifications */}
+    <form name="notificacion_testimonio" method="POST" data-netlify="true" hidden>
+      <input type="hidden" name="form-name" value="notificacion_testimonio" />
+      <input type="text" name="nombre" />
+      <textarea name="comentario"></textarea>
+    </form>
+
     <script is:inline>
-    // On page load: check if we JUST submitted a testimonial
-    (function() {
-      var saved = sessionStorage.getItem('testimonial_sent');
-      if (saved) {
-        var nombre = saved;
-        // Don't remove immediately — Vite may reload the page multiple times.
-        // Keep showing the success message for 10s of page stability.
-        setTimeout(function() { sessionStorage.removeItem('testimonial_sent'); }, 10000);
-        var card = document.getElementById('testimonial-card');
-        if (card) {
-          card.innerHTML =
-            '<div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:2.5rem 1rem;text-align:center">' +
-              '<div style="width:5rem;height:5rem;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid rgba(74,222,128,0.5);display:flex;align-items:center;justify-content:center">' +
-                '<svg width="40" height="40" fill="none" stroke="#4ade80" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
-              '</div>' +
-              '<div>' +
-                '<p style="font-family:serif;font-size:1.4rem;color:#fff;margin:0 0 .5rem">\u00a1Gracias, ' + nombre + '!</p>' +
-                '<p style="font-size:.9rem;font-weight:600;color:#86efac;margin:0 0 .75rem">Tu testimonio fue enviado exitosamente.</p>' +
-                '<p style="font-size:.8rem;color:#9ca3af;line-height:1.6;margin:0">La Dra. Flores lo revisar\u00e1 y lo publicar\u00e1 pronto.<br>Tu experiencia ayuda a otros pacientes.</p>' +
-              '</div>' +
-            '</div>';
-        }
-      }
-    })();
-
-    window.__enviarTestimonio = function() {
-      var nombre     = (document.getElementById('nombre_paciente').value || '').trim();
+    window.__enviarTestimonio = async function() {
+      var nombre = (document.getElementById('nombre_paciente').value || '').trim();
       var comentario = (document.getElementById('comentario').value || '').trim();
-      var btn        = document.getElementById('testimonial-submit-btn');
-      var errEl      = document.getElementById('testimonial-error');
+      var errEl = document.getElementById('testimonial-error');
+      var btn = document.getElementById('testimonial-submit-btn');
 
-      if (!nombre)     { errEl.textContent = 'Por favor ingresa tu nombre.';     errEl.classList.remove('hidden'); return; }
+      if (!nombre) { errEl.textContent = 'Por favor ingresa tu nombre.'; errEl.classList.remove('hidden'); return; }
       if (!comentario) { errEl.textContent = 'Por favor escribe tu experiencia.'; errEl.classList.remove('hidden'); return; }
 
       errEl.classList.add('hidden');
       btn.disabled = true;
-      btn.textContent = 'Enviando...';
+      btn.innerText = 'Enviando...';
 
-      // Save BEFORE fetch — Vite HMR will reload the page before .then() runs,
-      // cancelling the fetch callback. The reload will find this flag and show success.
-      sessionStorage.setItem('testimonial_sent', nombre.split(' ')[0]);
+      try {
+        // 1. Save to Blobs via API
+        const response = await fetch('/api/testimonials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre_paciente: nombre, comentario: comentario })
+        });
 
-      fetch('/api/testimonials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_paciente: nombre, comentario: comentario })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data && data.success) {
-          var card = document.getElementById('testimonial-card');
-          if (card) {
-            card.innerHTML =
-              '<div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:2.5rem 1rem;text-align:center">' +
-                '<div style="width:5rem;height:5rem;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid rgba(74,222,128,0.5);display:flex;align-items:center;justify-content:center">' +
-                  '<svg width="40" height="40" fill="none" stroke="#4ade80" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' +
-                '</div>' +
-                '<div>' +
-                  '<p style="font-family:serif;font-size:1.4rem;color:#fff;margin:0 0 .5rem">\u00a1Gracias, ' + nombre.split(' ')[0] + '!</p>' +
-                  '<p style="font-size:.9rem;font-weight:600;color:#86efac;margin:0 0 .75rem">Tu testimonio fue enviado exitosamente.</p>' +
-                  '<p style="font-size:.8rem;color:#9ca3af;line-height:1.6;margin:0">La Dra. Flores lo revisar\u00e1 y lo publicar\u00e1 pronto.<br>Tu experiencia ayuda a otros pacientes.</p>' +
-                '</div>' +
-              '</div>';
-          }
+        const data = await response.json();
+        if (data.success) {
+          // 2. Trigger Netlify Form Notification (silent background submit)
+          try {
+            const formData = new URLSearchParams();
+            formData.append('form-name', 'notificacion_testimonio');
+            formData.append('nombre', nombre);
+            formData.append('comentario', comentario);
+            
+            await fetch('/', {
+              method: 'POST',
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: formData.toString()
+            });
+          } catch (e) { console.error("Notification trigger failed", e); }
+
+          // 3. Final Redirect
+          window.location.href = '/gracias-testimonio';
         } else {
-          sessionStorage.removeItem('testimonial_sent');
-          btn.disabled = false;
-          btn.textContent = 'Enviar Testimonio';
-          errEl.textContent = 'Error del servidor. Intenta nuevamente.';
-          errEl.classList.remove('hidden');
+          throw new Error('Server error');
         }
-      })
-      .catch(function() {
-        sessionStorage.removeItem('testimonial_sent');
-        btn.disabled = false;
-        btn.textContent = 'Enviar Testimonio';
-        errEl.textContent = 'No se pudo conectar. Intenta nuevamente.';
+      } catch (e) {
+        console.error("Error submitting testimonial:", e);
+        errEl.textContent = 'Error al enviar. Intenta nuevamente.';
         errEl.classList.remove('hidden');
-      });
+        btn.disabled = false;
+        btn.innerText = 'Enviar Testimonio';
+      }
     };
     </script>
   </div>

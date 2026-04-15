@@ -1,0 +1,3 @@
+# Redirección manual para habilitar SSR en Netlify (Astro 6)
+# Este archivo asegura que las rutas dinámicas como /admin/moderacion funcionen correctamente.
+/*  /.netlify/functions/ssr  200

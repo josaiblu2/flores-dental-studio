@@ -21,38 +21,17 @@
     "is_published": true
   },
   {
-    "id": "1776208464970",
-    "fecha": "2026-04-14T23:14:24.970Z",
-    "nombre_paciente": "Prueba Final",
-    "comentario": "Verificando que el mensaje se mantiene",
-    "is_published": false
-  },
-  {
-    "id": "1776208670931",
-    "fecha": "2026-04-14T23:17:50.931Z",
-    "nombre_paciente": "Test Once",
-    "comentario": "Hola",
-    "is_published": false
-  },
-  {
     "id": "1776208867459",
     "fecha": "2026-04-14T23:21:07.459Z",
     "nombre_paciente": "Test Doce",
     "comentario": "Prueba",
-    "is_published": false
+    "is_published": true
   },
   {
-    "id": "1776209090764",
-    "fecha": "2026-04-14T23:24:50.764Z",
-    "nombre_paciente": "Test Trece",
-    "comentario": "Prueba 13",
-    "is_published": false
-  },
-  {
-    "id": "1776209353348",
-    "fecha": "2026-04-14T23:29:13.348Z",
-    "nombre_paciente": "Test Trece",
-    "comentario": "Prueba Trece",
+    "id": "1776292983312",
+    "fecha": "2026-04-15T22:43:03.312Z",
+    "nombre_paciente": "Test 5",
+    "comentario": "Prueba 5",
     "is_published": false
   }
 ]

@@ -1,27 +1,106 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { getStore } from '@netlify/blobs';
 
 // Server-side only
 export const prerender = false;
 
-const dataPath = path.join(process.cwd(), 'data/testimonials.json');
+// --- AUTH LOGIC ---
+const ADMIN_PASS = import.meta.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || 'admin123';
+
+// Handle Logout
+if (Astro.url.searchParams.has('logout')) {
+  Astro.cookies.delete('flores_admin_session', { path: '/' });
+  return Astro.redirect('/admin/moderacion');
+}
+
+let isLoggedIn = Astro.cookies.get('flores_admin_session')?.value === 'active';
+let loginError = false;
+
+// Handle Login Submission
+if (Astro.request.method === 'POST') {
+  try {
+    const data = await Astro.request.formData();
+    const password = data.get('password');
+    
+    if (password === ADMIN_PASS) {
+      Astro.cookies.set('flores_admin_session', 'active', { 
+        path: '/', 
+        httpOnly: true, 
+        secure: true, 
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7 // 1 week
+      });
+      isLoggedIn = true;
+    } else {
+      loginError = true;
+    }
+  } catch (e) {}
+}
+
+// --- DATA LOGIC (Only if logged in) ---
+const store = getStore({ name: 'testimonials' });
 let pending = [];
 let approved = [];
 
-try {
-  const rawData = await fs.readFile(dataPath, 'utf-8');
-  const all = JSON.parse(rawData);
-  pending = all.filter((t: any) => !t.is_published);
-  approved = all.filter((t: any) => t.is_published);
-} catch (e) {
-  console.error(e);
+if (isLoggedIn) {
+  try {
+    const all = await store.get('all', { type: 'json' }) as any[] || [];
+    pending = all.filter((t: any) => !t.is_published);
+    approved = all.filter((t: any) => t.is_published);
+  } catch (e) {
+    console.error("Error reading testimonials from blobs in moderation:", e);
+  }
 }
 ---
 
-<Layout title="Moderación de Testimonios | Flores Dental Studio" description="Panel de control para la gestión de reseñas de pacientes.">
-  <div class="min-h-screen bg-[#08152b] text-white pt-24 pb-12">
+<Layout title="Moderación | Flores Dental Studio" description="Panel de control privado.">
+  {!isLoggedIn ? (
+    /* LOGIN UI */
+    <div class="min-h-screen bg-[#061021] flex items-center justify-center px-4">
+      <div class="max-w-md w-full bg-[#0a1628] p-10 rounded-lg border border-blue-900/30 shadow-2xl">
+        <div class="text-center mb-10">
+          <div class="logo font-serif text-2xl text-white tracking-widest mb-1">FLORES</div>
+          <div class="logo-sub text-[10px] text-blue-400 tracking-[0.3em] font-light">DENTAL STUDIO</div>
+          <div class="w-8 h-px bg-blue-900 mx-auto mt-6"></div>
+        </div>
+        
+        <h1 class="text-xl text-center text-white font-serif mb-8">Acceso Restringido</h1>
+        
+        <form method="POST" class="space-y-6">
+          <div>
+            <label for="password" class="block text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Contraseña</label>
+            <input 
+              type="password" 
+              name="password" 
+              id="password" 
+              required
+              autofocus
+              class="w-full bg-[#050b16] border border-blue-900/40 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm"
+              placeholder="••••••••"
+            />
+          </div>
+          
+          {loginError && (
+            <p class="text-red-400 text-xs text-center animate-shake">Contraseña incorrecta. Intente nuevamente.</p>
+          )}
+          
+          <button 
+            type="submit" 
+            class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-sm transition-all shadow-lg active:scale-[0.98]"
+          >
+            Entrar al Panel
+          </button>
+        </form>
+        
+        <p class="mt-10 text-center text-[11px] text-gray-600 font-light">
+          &copy; {new Date().getFullYear()} Flores Dental Studio — Área Privada
+        </p>
+      </div>
+    </div>
+  ) : (
+    /* DASHBOARD UI */
+    <div class="min-h-screen bg-[#08152b] text-white pt-24 pb-12">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       
       {/* Header */}
@@ -30,7 +109,7 @@ try {
           <h1 class="font-serif text-4xl mb-2">Panel de Moderación</h1>
           <p class="text-blue-300 font-light">Gestione las experiencias compartidas por sus pacientes.</p>
         </div>
-        <div class="mt-4 md:mt-0 flex gap-4">
+        <div class="mt-4 md:mt-0 flex gap-4 items-center">
           <div class="bg-navy-dark px-4 py-2 rounded border border-blue-800/30 text-center">
             <span class="block text-2xl font-bold text-blue-400">{pending.length}</span>
             <span class="text-[10px] uppercase tracking-widest text-gray-400">Pendientes</span>
@@ -39,6 +118,12 @@ try {
             <span class="block text-2xl font-bold text-gray-300">{approved.length}</span>
             <span class="text-[10px] uppercase tracking-widest text-gray-400">Publicados</span>
           </div>
+          <a 
+            href="?logout=true" 
+            class="text-xs text-gray-500 hover:text-red-400 transition-colors uppercase tracking-widest ml-2"
+          >
+            Salir
+          </a>
         </div>
       </div>
 
@@ -135,6 +220,7 @@ try {
         btn.disabled = false;
         btn.innerText = originalText;
       }
-    }
+    )}
   </script>
+)}
 </Layout>

@@ -1,14 +1,35 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { APIRoute } from 'astro';
+import { getStore } from '@netlify/blobs';
 
 export const prerender = false;
-const dataPath = path.join(process.cwd(), 'data/testimonials.json');
+
+// Helpers for persistence
+const getTestimonialsStore = () => getStore({ name: 'testimonials' });
+
+async function getStoredTestimonials() {
+  const store = getTestimonialsStore();
+  let list = await store.get('all', { type: 'json' }) as any[];
+  
+  // Migration / Initialization
+  if (!list) {
+    try {
+      const dataPath = path.join(process.cwd(), 'data/testimonials.json');
+      const rawData = await fs.readFile(dataPath, 'utf-8');
+      list = JSON.parse(rawData);
+      // Seed the blob store with initial data
+      await store.setJSON('all', list);
+    } catch (e) {
+      list = [];
+    }
+  }
+  return list;
+}
 
 // --- SUBMISSION HANDLER ---
 export const POST: APIRoute = async ({ request }) => {
   try {
-    // Accept both JSON and FormData
     const contentType = request.headers.get('content-type') || '';
     let nombre: string;
     let comentario: string;
@@ -27,8 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ success: false, error: 'Missing fields' }), { status: 400 });
     }
 
-    const rawData = await fs.readFile(dataPath, 'utf-8');
-    const testimonials = JSON.parse(rawData);
+    const testimonials = await getStoredTestimonials();
     
     testimonials.push({
       id: Date.now().toString(),
@@ -38,40 +58,9 @@ export const POST: APIRoute = async ({ request }) => {
       is_published: false
     });
 
-    await fs.writeFile(dataPath, JSON.stringify(testimonials, null, 2));
+    const store = getTestimonialsStore();
+    await store.setJSON('all', testimonials);
 
-    // --- EMAIL ALERT (RESEND) ---
-    const RESEND_KEY = import.meta.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
-    
-    if (RESEND_KEY) {
-      try {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Flores Dental Studio <onboarding@resend.dev>',
-            to: 'josaiblu2@yahoo.com.mx',
-            subject: '🔔 Nuevo testimonio pendiente de aprobación',
-            html: `
-              <h2>Hola Dra. Flores,</h2>
-              <p>Tiene un nuevo testimonio pendiente de revisión en su panel de administración.</p>
-              <hr />
-              <p><strong>Paciente:</strong> ${nombre}</p>
-              <p><strong>Comentario:</strong> "${comentario}"</p>
-              <hr />
-              <p><a href="${request.url.replace('/api/testimonials', '/admin/moderacion')}">Ir al Panel de Moderación</a></p>
-            `
-          }),
-        });
-      } catch (e) {
-        console.error("Error sending email alert:", e);
-      }
-    }
-
-    // Return JSON success — client JS handles navigation
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -86,8 +75,7 @@ export const POST: APIRoute = async ({ request }) => {
 export const PATCH: APIRoute = async ({ request }) => {
   try {
     const { id, action } = await request.json();
-    const rawData = await fs.readFile(dataPath, 'utf-8');
-    let testimonials = JSON.parse(rawData);
+    let testimonials = await getStoredTestimonials();
     
     if (action === 'approve') {
       testimonials = testimonials.map((t: any) => t.id === id ? { ...t, is_published: true } : t);
@@ -95,7 +83,9 @@ export const PATCH: APIRoute = async ({ request }) => {
       testimonials = testimonials.filter((t: any) => t.id !== id);
     }
 
-    await fs.writeFile(dataPath, JSON.stringify(testimonials, null, 2));
+    const store = getTestimonialsStore();
+    await store.setJSON('all', testimonials);
+    
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {
     console.error("Error in PATCH /api/testimonials:", error);
