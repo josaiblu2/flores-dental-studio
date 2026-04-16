@@ -1,15 +1,17 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { APIRoute } from 'astro';
-import { getStore } from '@netlify/blobs';
 
 export const prerender = false;
 
 // Helpers for persistence
-const getTestimonialsStore = () => getStore({ name: 'testimonials' });
+const getTestimonialsStore = async () => {
+  const { getStore } = await import('@netlify/blobs');
+  return getStore({ name: 'testimonials' });
+};
 
 async function getStoredTestimonials() {
-  const store = getTestimonialsStore();
+  const store = await getTestimonialsStore();
   let list = await store.get('all', { type: 'json' }) as any[];
   
   // Migration / Initialization
@@ -58,9 +60,8 @@ export const POST: APIRoute = async ({ request }) => {
       is_published: false
     });
 
-    const store = getTestimonialsStore();
+    const store = await getTestimonialsStore();
     await store.setJSON('all', testimonials);
-
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -83,9 +84,8 @@ export const PATCH: APIRoute = async ({ request }) => {
       testimonials = testimonials.filter((t: any) => t.id !== id);
     }
 
-    const store = getTestimonialsStore();
+    const store = await getTestimonialsStore();
     await store.setJSON('all', testimonials);
-    
     return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error) {
     console.error("Error in PATCH /api/testimonials:", error);

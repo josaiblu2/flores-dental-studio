@@ -1,10 +1,9 @@
 ---
-import { getStore } from '@netlify/blobs';
-
-const store = getStore({ name: 'testimonials' });
 let published = [];
 
 try {
+  const { getStore } = await import('@netlify/blobs');
+  const store = getStore({ name: 'testimonials' });
   const allTestimonials = await store.get('all', { type: 'json' }) as any[];
   if (allTestimonials) {
     published = allTestimonials.filter((t: any) => t.is_published === true);

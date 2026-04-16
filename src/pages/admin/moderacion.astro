@@ -1,12 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getStore } from '@netlify/blobs';
 
 // Server-side only
 export const prerender = false;
 
 // --- AUTH LOGIC ---
-const ADMIN_PASS = import.meta.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_PASS = import.meta.env.ADMIN_PASSWORD || 'admin123';
 
 // Handle Logout
 if (Astro.url.searchParams.has('logout')) {
@@ -39,15 +38,20 @@ if (Astro.request.method === 'POST') {
 }
 
 // --- DATA LOGIC (Only if logged in) ---
-const store = getStore({ name: 'testimonials' });
 let pending = [];
 let approved = [];
 
 if (isLoggedIn) {
   try {
+    const { getStore } = await import('@netlify/blobs');
+    const store = getStore({ name: 'testimonials' });
     const all = await store.get('all', { type: 'json' }) as any[] || [];
     pending = all.filter((t: any) => !t.is_published);
     approved = all.filter((t: any) => t.is_published);
+    
+    // Sort by date (newest first)
+    pending.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    approved.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
   } catch (e) {
     console.error("Error reading testimonials from blobs in moderation:", e);
   }
@@ -128,7 +132,7 @@ if (isLoggedIn) {
       </div>
 
       {/* Pending Section */}
-      <section class="mb-16">
+      <section class="mb-20">
         <h2 class="text-xl font-sans font-semibold mb-6 flex items-center">
           <span class="w-2 h-2 bg-yellow-400 rounded-full mr-3 animate-pulse"></span>
           Nuevos testimonios por aprobar
@@ -149,13 +153,13 @@ if (isLoggedIn) {
                   </div>
                   <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                     <button 
-                      onclick={`handleAction('${t.id}', 'approve')`}
+                      onclick={`handleAction(event, '${t.id}', 'approve')`}
                       class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-medium transition-all shadow-lg active:scale-95"
                     >
                       Aprobar
                     </button>
                     <button 
-                      onclick={`handleAction('${t.id}', 'archive')`}
+                      onclick={`handleAction(event, '${t.id}', 'archive')`}
                       class="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-900/50 px-4 py-1.5 rounded text-sm font-medium transition-all active:scale-95"
                     >
                       Archivar
@@ -171,11 +175,32 @@ if (isLoggedIn) {
         )}
       </section>
 
+      {/* Published Section */}
+      <section class="mb-16">
+        <h2 class="text-xl font-serif mb-6 text-gray-400 uppercase tracking-widest text-sm">Testimonios ya publicados</h2>
+        <div class="grid gap-4">
+          {approved.map((t) => (
+            <div class="bg-navy-dark/40 border border-blue-900/30 rounded-lg p-4 flex justify-between items-center group" id={`card-${t.id}`}>
+              <div class="flex-1">
+                <p class="text-sm text-gray-300 italic mb-1">"{t.comentario}"</p>
+                <p class="text-[11px] text-blue-400 font-medium">— {t.nombre_paciente}</p>
+              </div>
+              <button 
+                onclick={`handleAction(event, '${t.id}', 'archive')`}
+                class="ml-6 text-[10px] text-gray-600 hover:text-red-400 uppercase tracking-widest transition-colors opacity-0 group-hover:opacity-100"
+              >
+                Eliminar
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Information Box */}
       <div class="bg-blue-900/20 border border-blue-800/50 rounded p-6 flex items-start gap-4">
         <svg class="w-6 h-6 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <p class="text-sm text-blue-200 font-light leading-relaxed">
-          <strong>IMPORTANTE:</strong> Una vez aprobado, el testimonio se mostrará automáticamente en la página principal con el apellido abreviado para proteger la privacidad del paciente. Los cambios pueden tardar unos segundos en reflejarse.
+          <strong>CONSEJO:</strong> Ahora puedes eliminar testimonios incluso después de haberlos aprobado usando el botón pequeño a la derecha en la lista de "Publicados".
         </p>
       </div>
 
@@ -183,13 +208,13 @@ if (isLoggedIn) {
   </div>
 
   <script is:inline>
-    async function handleAction(id, action) {
-      if (!confirm(`¿Estás seguro de que deseas ${action === 'approve' ? 'aprobación' : 'archivar'} este testimonio?`)) return;
+    async function handleAction(event, id, action) {
+      if (!confirm(`¿Estás seguro de que deseas ${action === 'approve' ? 'aprobar' : 'eliminar/archivar'} este testimonio?`)) return;
 
-      const btn = event.target;
+      const btn = event.currentTarget;
       const originalText = btn.innerText;
       btn.disabled = true;
-      btn.innerText = 'Procesando...';
+      btn.innerText = '...';
 
       try {
         const res = await fetch('/api/testimonials', {
@@ -200,27 +225,25 @@ if (isLoggedIn) {
 
         const data = await res.json();
         if (data.success) {
-          // Visual feedback
           const card = document.getElementById(`card-${id}`);
-          card.style.opacity = '0';
-          card.style.transform = 'translateY(-10px)';
-          card.style.transition = 'all 0.5s ease';
-          
-          setTimeout(() => {
+          if (card) {
+            card.style.opacity = '0';
+            setTimeout(() => window.location.reload(), 300);
+          } else {
             window.location.reload();
-          }, 500);
+          }
         } else {
-          alert('Hubo un error al procesar la acción.');
+          alert('Error en el servidor.');
           btn.disabled = false;
           btn.innerText = originalText;
         }
       } catch (e) {
         console.error(e);
-        alert('Error de conexión con el servidor.');
+        alert('Error de conexión.');
         btn.disabled = false;
         btn.innerText = originalText;
       }
-    )}
+    }
   </script>
 )}
 </Layout>
