@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const whatsappLink = "https://wa.me/525577652014?text=Hola%20Dra.%20Alma,%20vengo%20de%20la%20página%20de%20IBIME%20y%20me%20gustaría%20agendar%20mi%20limpieza%20con%20la%20promoción.";
+---
+
+<Layout title="Beneficio Exclusivo IBIME | Flores Dental Studio" description="Landing page exclusiva para la comunidad IBIME. Aprovecha descuentos especiales en limpiezas dentales.">
+  <Header />
+
+  <main class="bg-white">
+    <!-- Hero Section with Dual Logos -->
+    <section class="py-16 md:py-24 border-b border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 mb-12">
+          <!-- IBIME Logo -->
+          <div class="w-32 md:w-40 flex items-center justify-center">
+            <img src="/images/logo-ibime.png" alt="Logo IBIME" class="max-h-24 md:max-h-32 object-contain" />
+          </div>
+          
+          <!-- Divider for Desktop -->
+          <div class="hidden md:block h-20 w-px bg-gray-200"></div>
+
+          <!-- Clinic Logo (Replicated from Header) -->
+          <div class="flex flex-col items-center md:items-start leading-none pointer-events-none select-none">
+            <span class="font-serif text-3xl md:text-4xl tracking-wide text-navy">Flores</span>
+            <span class="font-sans text-[0.8rem] md:text-[0.9rem] tracking-[0.25em] font-light uppercase text-navy/80">Dental Studio</span>
+          </div>
+        </div>
+
+        <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl text-navy mb-6 leading-tight">
+          Beneficio Exclusivo para <br class="hidden md:block" /> <span class="text-blue-600">Comunidad IBIME</span>
+        </h1>
+        <p class="max-w-2xl mx-auto text-lg text-gray-600 font-light leading-relaxed">
+          Un espacio dedicado al cuidado de tu sonrisa con la ética y excelencia que nos caracteriza.
+        </p>
+      </div>
+    </section>
+
+    <!-- Promotion Flyer Section -->
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative group shadow-2xl rounded-sm overflow-hidden bg-white">
+          <img 
+            src="/images/promo-ibime.png" 
+            alt="Promoción Exclusiva IBIME" 
+            class="w-full h-auto transition-transform duration-500 group-hover:scale-[1.01]" 
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Action Section -->
+    <section class="py-20 md:py-32">
+      <div class="max-w-3xl mx-auto px-4 text-center">
+        <h2 class="font-serif text-3xl md:text-4xl text-navy mb-8">
+          ¿Listo para transformar tu salud dental?
+        </h2>
+        
+        <div class="flex flex-col items-center gap-6">
+          <a 
+            href={whatsappLink} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center px-10 py-5 bg-[#25D366] text-white text-xl font-semibold rounded-full shadow-lg hover:bg-[#20ba5a] hover:-translate-y-1 transition-all duration-300 group"
+          >
+            <svg class="w-7 h-7 mr-3 fill-current" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-4.721 7.454c-1.89 0-3.742-.508-5.361-1.467L3 21l1.031-3.754a9.28 9.28 0 01-1.31-4.704c0-5.132 4.175-9.308 9.308-9.308 2.485 0 4.823.97 6.577 2.724s2.725 4.092 2.725 6.577c.001 5.133-4.174 9.308-9.308 9.308m7.292-16.598A10.926 10.926 0 0012.75 2c-6.064 0-11 4.935-11 11 0 1.939.507 3.832 1.47 5.514L2 23l4.636-1.213C8.252 22.75 10.463 23.4 12.75 23.4c6.065 0 11-4.935 11-11 0-2.91-1.134-5.644-3.192-7.702z"/>
+            </svg>
+            Agendar mi Limpieza con Descuento
+          </a>
+          <p class="text-sm text-gray-500 font-light flex items-center justify-center">
+            <svg class="w-4 h-4 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Atención personalizada de la Dra. Alma Flores.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Optional: Custom styling for the page if needed beyond Tailwind */
+  h1, h2 {
+    text-wrap: balance;
+  }
+</style>
