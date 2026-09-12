@@ -35,9 +35,8 @@
       {/* Form Side */}
       <div class="md:w-7/12 p-10 bg-white">
         <!-- Netlify Form Integration with hidden fields -->
-        <form name="contacto_floresdental" method="POST" action="/gracias/" data-netlify="true" id="contact-form" class="space-y-6">
+        <form name="contacto_floresdental" method="POST" action="/__forms.html" data-netlify="true" id="contact-form" class="space-y-6">
           <input type="hidden" name="form-name" value="contacto_floresdental" />
-          <input type="hidden" name="to" value="alanflco@yahoo.com.mx" />
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -85,11 +84,13 @@
             </div>
           </div>
 
-
           <div class="pt-2">
-            <button type="submit" class="w-full bg-navy text-white font-medium py-3 px-4 rounded-sm hover:bg-navy-light transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed" id="submitBtn">
+            <button type="submit" class="w-full bg-navy text-white font-medium py-3 px-4 rounded-sm hover:bg-navy-light transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer" id="submitBtn">
               Enviar Mensaje
             </button>
+            <p id="form-error-msg" class="hidden text-xs text-red-500 mt-2 text-center font-light">
+              Hubo un problema al enviar su solicitud. Por favor intente de nuevo o contáctenos directamente.
+            </p>
             <p class="text-xs text-gray-400 mt-3 text-center font-light">
               Protegido por reCAPTCHA v3. <a href="https://policies.google.com/privacy" class="underline">Privacidad</a> y <a href="https://policies.google.com/terms" class="underline">Términos</a>.
             </p>
@@ -100,4 +101,60 @@
   </div>
 </section>
 
-<!-- reCAPTCHA v3 Mockup Integration -->
+<script>
+  function setupContactForm() {
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+    const errorMsg = document.getElementById('form-error-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando mensaje...';
+      }
+      if (errorMsg) {
+        errorMsg.classList.add('hidden');
+      }
+
+      try {
+        const formData = new FormData(form);
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+          params.append(key, value.toString());
+        }
+
+        const response = await fetch('/__forms.html', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: params.toString(),
+        });
+
+        if (response.ok) {
+          window.location.href = '/gracias/';
+        } else {
+          throw new Error('Form submission failed with status: ' + response.status);
+        }
+      } catch (err) {
+        console.error('Error enviando formulario:', err);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Enviar Mensaje';
+        }
+        if (errorMsg) {
+          errorMsg.classList.remove('hidden');
+        }
+      }
+    });
+  }
+
+  // Inicializar en carga inicial y en navegaciones de Astro
+  setupContactForm();
+  document.addEventListener('astro:page-load', setupContactForm);
+</script>
