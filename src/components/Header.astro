@@ -17,9 +17,9 @@ export interface Props {}
       {/* Navigation */}
       <nav class="hidden md:flex space-x-8">
         <a href="/" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Inicio</a>
-        <a href="#pilares" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Clínica</a>
-        <a href="#servicios" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Especialidades</a>
-        <a href="#faq" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Transparencia</a>
+        <a href="/#pilares" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Clínica</a>
+        <a href="/#servicios" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Especialidades</a>
+        <a href="/#faq" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Transparencia</a>
         <a href="/blog" class="hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">Blog</a>
       </nav>
 
@@ -70,5 +70,15 @@ export interface Props {}
         menu.classList.toggle('hidden');
       });
     }
+
+    const contactLinks = document.querySelectorAll('a[href="#contacto"]');
+    contactLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (!document.getElementById('contacto')) {
+          e.preventDefault();
+          window.location.href = '/#contacto';
+        }
+      });
+    });
   });
 </script>
