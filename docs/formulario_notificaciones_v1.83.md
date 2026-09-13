@@ -59,3 +59,16 @@ Se modificó `src/components/ContactForm.astro` aplicando los siguientes cambios
   - Llenado de todos los campos obligatorios y aceptación del Aviso de Privacidad.
   - Clic en *"Enviar Mensaje"*.
   - Transición fluida y confirmación en pantalla en `/gracias/`.
+
+---
+
+## 4. Integración en Landing Page IBIME (`/ibime`)
+
+Se detectó que en la página promocional `https://floresdentalstudio.work/ibime`, el botón **"Agendar Cita"** (tanto en escritorio como en el botón flotante móvil) apuntaba a `#contacto`, pero dicha página no incluía la sección del formulario, provocando que la página no se desplazara ni mostrara formulario alguno.
+
+- **Ajustes:**
+  - Se importó e integró `<ContactForm />` en `src/pages/ibime.astro`.
+  - Se actualizó `src/components/Header.astro` para soportar navegación global consistente (`/#pilares`, `/#servicios`, `/#faq`) y redirección a `/#contacto` en páginas que no contengan el formulario.
+- **Resultado:**
+  - Al hacer clic en *"Agendar Cita"* desde `/ibime`, el navegador se desplaza fluidamente al formulario de citas `#contacto` dentro de la misma página promocional.
+
