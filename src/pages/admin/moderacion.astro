@@ -1,34 +1,46 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import {
+  SESSION_COOKIE,
+  SESSION_TTL_SECONDS,
+  createSessionToken,
+  getAdminConfig,
+  isAdmin,
+  verifyPassword,
+} from '../../lib/adminAuth';
 
 // Server-side only
 export const prerender = false;
 
 // --- AUTH LOGIC ---
-const ADMIN_PASS = import.meta.env.ADMIN_PASSWORD || 'admin123';
+// No default password: without ADMIN_PASSWORD and ADMIN_SESSION_SECRET the panel stays locked.
+const adminConfig = getAdminConfig();
+if (!adminConfig) {
+  console.error('Admin panel locked: ADMIN_PASSWORD and ADMIN_SESSION_SECRET (min. 32 chars) must be set.');
+}
 
 // Handle Logout
 if (Astro.url.searchParams.has('logout')) {
-  Astro.cookies.delete('flores_admin_session', { path: '/' });
+  Astro.cookies.delete(SESSION_COOKIE, { path: '/' });
   return Astro.redirect('/admin/moderacion');
 }
 
-let isLoggedIn = Astro.cookies.get('flores_admin_session')?.value === 'active';
+let isLoggedIn = isAdmin(Astro.cookies);
 let loginError = false;
 
 // Handle Login Submission
-if (Astro.request.method === 'POST') {
+if (adminConfig && Astro.request.method === 'POST') {
   try {
     const data = await Astro.request.formData();
     const password = data.get('password');
-    
-    if (password === ADMIN_PASS) {
-      Astro.cookies.set('flores_admin_session', 'active', { 
-        path: '/', 
-        httpOnly: true, 
-        secure: true, 
+
+    if (typeof password === 'string' && verifyPassword(password, adminConfig.password)) {
+      Astro.cookies.set(SESSION_COOKIE, createSessionToken(adminConfig.secret), {
+        path: '/',
+        httpOnly: true,
+        secure: true,
         sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 7 // 1 week
+        maxAge: SESSION_TTL_SECONDS
       });
       isLoggedIn = true;
     } else {
@@ -59,7 +71,17 @@ if (isLoggedIn) {
 ---
 
 <Layout title="Moderación | Flores Dental Studio" description="Panel de control privado.">
-  {!isLoggedIn ? (
+  {!adminConfig ? (
+    /* LOCKED UI (missing configuration) */
+    <div class="min-h-screen bg-[#061021] flex items-center justify-center px-4">
+      <div class="max-w-md w-full bg-[#0a1628] p-10 rounded-lg border border-blue-900/30 shadow-2xl text-center">
+        <h1 class="text-xl text-white font-serif mb-4">Panel no configurado</h1>
+        <p class="text-sm text-gray-400 font-light leading-relaxed">
+          El acceso está bloqueado hasta que se configuren las variables de entorno del panel de administración.
+        </p>
+      </div>
+    </div>
+  ) : !isLoggedIn ? (
     /* LOGIN UI */
     <div class="min-h-screen bg-[#061021] flex items-center justify-center px-4">
       <div class="max-w-md w-full bg-[#0a1628] p-10 rounded-lg border border-blue-900/30 shadow-2xl">
@@ -222,6 +244,12 @@ if (isLoggedIn) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, action })
         });
+
+        // Session expired or invalid: reload to show the login form.
+        if (res.status === 401) {
+          window.location.reload();
+          return;
+        }
 
         const data = await res.json();
         if (data.success) {

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { APIRoute } from 'astro';
+import { getAdminConfig, isAdmin } from '../../lib/adminAuth';
 
 export const prerender = false;
 
@@ -73,14 +74,28 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 // --- MODERATION HANDLER ---
-export const PATCH: APIRoute = async ({ request }) => {
+const json = (body: unknown, status: number) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+export const PATCH: APIRoute = async ({ request, cookies }) => {
+  if (!getAdminConfig()) {
+    return json({ success: false, error: 'Admin panel not configured' }, 503);
+  }
+  if (!isAdmin(cookies)) {
+    return json({ success: false, error: 'Unauthorized' }, 401);
+  }
+
   try {
     const { id, action } = await request.json();
+    if (typeof id !== 'string' || !id || (action !== 'approve' && action !== 'archive')) {
+      return json({ success: false, error: 'Invalid request' }, 400);
+    }
+
     let testimonials = await getStoredTestimonials();
     
     if (action === 'approve') {
       testimonials = testimonials.map((t: any) => t.id === id ? { ...t, is_published: true } : t);
-    } else if (action === 'archive') {
+    } else {
       testimonials = testimonials.filter((t: any) => t.id !== id);
     }
 
